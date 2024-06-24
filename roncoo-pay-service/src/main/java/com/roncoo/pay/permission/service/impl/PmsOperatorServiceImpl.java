@@ -15,16 +15,7 @@
  */
 package com.roncoo.pay.permission.service.impl;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.lang.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
+import com.roncoo.pay.common.core.enums.PublicStatusEnum;
 import com.roncoo.pay.common.core.page.PageBean;
 import com.roncoo.pay.common.core.page.PageParam;
 import com.roncoo.pay.permission.dao.PmsOperatorDao;
@@ -32,6 +23,12 @@ import com.roncoo.pay.permission.dao.PmsOperatorRoleDao;
 import com.roncoo.pay.permission.entity.PmsOperator;
 import com.roncoo.pay.permission.entity.PmsOperatorRole;
 import com.roncoo.pay.permission.service.PmsOperatorService;
+import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.*;
 
 /**
  * 操作员service接口实现
@@ -153,16 +150,16 @@ public class PmsOperatorServiceImpl implements PmsOperatorService {
 		pmsOperatorDao.insert(pmsOperator);
 		// 保存角色关联信息
 		if (StringUtils.isNotBlank(roleOperatorStr) && roleOperatorStr.length() > 0) {
-			saveOrUpdateOperatorRole(pmsOperator.getId(), roleOperatorStr);
+			saveOrUpdateOperatorRole(pmsOperator, roleOperatorStr);
 		}
 	}
 
 	/**
 	 * 保存用户和角色之间的关联关系
 	 */
-	private void saveOrUpdateOperatorRole(long operatorId, String roleIdsStr) {
+	private void saveOrUpdateOperatorRole(PmsOperator pmsOperator, String roleIdsStr) {
 		// 删除原来的角色与操作员关联
-		List<PmsOperatorRole> listPmsOperatorRoles = pmsOperatorRoleDao.listByOperatorId(operatorId);
+		List<PmsOperatorRole> listPmsOperatorRoles = pmsOperatorRoleDao.listByOperatorId(pmsOperator.getId());
 		Map<Long, PmsOperatorRole> delMap = new HashMap<Long, PmsOperatorRole>();
 		for (PmsOperatorRole pmsOperatorRole : listPmsOperatorRoles) {
 			delMap.put(pmsOperatorRole.getRoleId(), pmsOperatorRole);
@@ -174,8 +171,11 @@ public class PmsOperatorServiceImpl implements PmsOperatorService {
 				long roleId = Long.parseLong(roleIds[i]);
 				if (delMap.get(roleId) == null) {
 					PmsOperatorRole pmsOperatorRole = new PmsOperatorRole();
-					pmsOperatorRole.setOperatorId(operatorId);
+					pmsOperatorRole.setOperatorId(pmsOperator.getId());
 					pmsOperatorRole.setRoleId(roleId);
+					pmsOperatorRole.setCreater(pmsOperator.getCreater());
+					pmsOperatorRole.setCreateTime(new Date());
+					pmsOperatorRole.setStatus(PublicStatusEnum.ACTIVE.name());
 					pmsOperatorRoleDao.insert(pmsOperatorRole);
 				} else {
 					delMap.remove(roleId);
@@ -186,7 +186,7 @@ public class PmsOperatorServiceImpl implements PmsOperatorService {
 		Iterator<Long> iterator = delMap.keySet().iterator();
 		while (iterator.hasNext()) {
 			long roleId = iterator.next();
-			pmsOperatorRoleDao.deleteByRoleIdAndOperatorId(roleId, operatorId);
+			pmsOperatorRoleDao.deleteByRoleIdAndOperatorId(roleId, pmsOperator.getId());
 		}
 	}
 
@@ -201,7 +201,7 @@ public class PmsOperatorServiceImpl implements PmsOperatorService {
 	public void updateOperator(PmsOperator pmsOperator, String roleOperatorStr) {
 		pmsOperatorDao.update(pmsOperator);
 		// 更新角色信息
-		this.saveOrUpdateOperatorRole(pmsOperator.getId(), roleOperatorStr);
+		this.saveOrUpdateOperatorRole(pmsOperator, roleOperatorStr);
 	}
 
 }

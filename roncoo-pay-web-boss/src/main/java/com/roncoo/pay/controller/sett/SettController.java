@@ -15,12 +15,15 @@
  */
 package com.roncoo.pay.controller.sett;
 
-import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-
+import com.roncoo.pay.account.entity.RpAccount;
+import com.roncoo.pay.account.entity.RpSettRecord;
+import com.roncoo.pay.account.service.RpAccountService;
+import com.roncoo.pay.account.service.RpSettHandleService;
+import com.roncoo.pay.account.service.RpSettQueryService;
+import com.roncoo.pay.common.core.dwz.DWZ;
+import com.roncoo.pay.common.core.dwz.DwzAjax;
+import com.roncoo.pay.common.core.page.PageBean;
+import com.roncoo.pay.common.core.page.PageParam;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -28,15 +31,13 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.roncoo.pay.account.entity.RpSettRecord;
-import com.roncoo.pay.account.service.RpSettHandleService;
-import com.roncoo.pay.account.service.RpSettQueryService;
-import com.roncoo.pay.common.core.dwz.DWZ;
-import com.roncoo.pay.common.core.dwz.DwzAjax;
-import com.roncoo.pay.common.core.page.PageBean;
-import com.roncoo.pay.common.core.page.PageParam;
- 
+import javax.servlet.http.HttpServletRequest;
+import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * 结算管理
  * @company：广州领课网络科技有限公司（龙果学院:www.roncoo.com）
@@ -50,6 +51,8 @@ public class SettController {
 	private RpSettQueryService rpSettQueryService;
 	@Autowired
 	private RpSettHandleService rpSettHandleService;
+	@Autowired
+	private RpAccountService rpAccountService;
 
 	/**
 	 * 函数功能说明 ： 查询分页数据
@@ -58,7 +61,7 @@ public class SettController {
 	 * @return String
 	 * @throws
 	 */
-	@RequestMapping(value = "/list", method ={RequestMethod.POST,RequestMethod.GET})
+	@RequestMapping(value = "/list", method ={RequestMethod.POST, RequestMethod.GET})
 	public String list(RpSettRecord rpSettRecord, PageParam pageParam, Model model) {
 		Map<String, Object> paramMap = new HashMap<String, Object>();
 		paramMap.put("userName", rpSettRecord.getUserName());
@@ -92,7 +95,7 @@ public class SettController {
 	 */
 	@RequiresPermissions("sett:record:add")
 	@RequestMapping(value = "/launchSett", method = RequestMethod.POST)
-	public String launchSett(HttpServletRequest request, Model model,DwzAjax dwz) {
+	public String launchSett(HttpServletRequest request, Model model, DwzAjax dwz) {
 		String userNo = request.getParameter("user.userNo");
 		String settAmount = request.getParameter("settAmount");
 		rpSettHandleService.launchSett(userNo, new BigDecimal(settAmount));
@@ -126,7 +129,7 @@ public class SettController {
 	 */
 	@RequiresPermissions("sett:record:edit")
 	@RequestMapping(value = "/audit", method = RequestMethod.POST)
-	public String audit(HttpServletRequest request, Model model,DwzAjax dwz) {
+	public String audit(HttpServletRequest request, Model model, DwzAjax dwz) {
 		String settId = request.getParameter("settId");
 		String settStatus = request.getParameter("settStatus");
 		String remark = request.getParameter("remark");
@@ -161,7 +164,7 @@ public class SettController {
 	 */
 	@RequiresPermissions("sett:record:edit")
 	@RequestMapping(value = "/remit", method = RequestMethod.POST)
-	public String remit(HttpServletRequest request, Model model,DwzAjax dwz) {
+	public String remit(HttpServletRequest request, Model model, DwzAjax dwz) {
 		String settId = request.getParameter("settId");
 		String settStatus = request.getParameter("settStatus");
 		String remark = request.getParameter("remark");
@@ -184,5 +187,19 @@ public class SettController {
 		RpSettRecord settRecord = rpSettQueryService.getDataById(id);
 		model.addAttribute("settRecord", settRecord);
 		return "sett/view";
+	}
+	
+	/**
+	 * 函数功能说明 ：根据支付产品获取支付方式
+	 * 
+	 * @参数： @return
+	 * @return String
+	 * @throws
+	 */
+	@RequestMapping(value = "/getSettAmount", method = RequestMethod.GET)
+	@ResponseBody
+	public RpAccount getSettAmount(@RequestParam("userNo") String userNo) {
+		RpAccount rpAccount = rpAccountService.getDataByUserNo(userNo);
+        return rpAccount;
 	}
 }

@@ -15,10 +15,16 @@
  */
 package com.roncoo.pay.permission.controller;
 
-import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
-
+import com.roncoo.pay.common.core.dwz.DwzAjax;
+import com.roncoo.pay.common.core.enums.PublicStatusEnum;
+import com.roncoo.pay.common.core.page.PageBean;
+import com.roncoo.pay.common.core.page.PageParam;
+import com.roncoo.pay.controller.common.BaseController;
+import com.roncoo.pay.permission.entity.PmsPermission;
+import com.roncoo.pay.permission.entity.PmsRole;
+import com.roncoo.pay.permission.service.PmsPermissionService;
+import com.roncoo.pay.permission.service.PmsRoleService;
+import com.roncoo.pay.permission.utils.ValidateUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -28,15 +34,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import com.roncoo.pay.common.core.dwz.DwzAjax;
-import com.roncoo.pay.common.core.page.PageBean;
-import com.roncoo.pay.common.core.page.PageParam;
-import com.roncoo.pay.controller.common.BaseController;
-import com.roncoo.pay.permission.entity.PmsPermission;
-import com.roncoo.pay.permission.entity.PmsRole;
-import com.roncoo.pay.permission.service.PmsPermissionService;
-import com.roncoo.pay.permission.service.PmsRoleService;
-import com.roncoo.pay.permission.utils.ValidateUtils;
+import javax.servlet.http.HttpServletRequest;
+import java.util.Date;
+import java.util.List;
 
 /**
  * 权限管理模块的Permission类，包括权限点管理、角色管理、操作员管理.<br/>
@@ -67,6 +67,7 @@ public class PmsPermissionController extends BaseController {
 		try {
 			PageBean pageBean = pmsPermissionService.listPage(pageParam, pmsPermission);
 			model.addAttribute(pageBean);
+			model.addAttribute("pageParam", pageParam);
 			return "pms/pmsPermissionList";
 		} catch (Exception e) {
 			log.error("== listPmsPermission exception:", e);
@@ -113,7 +114,9 @@ public class PmsPermissionController extends BaseController {
 			if (checkPermission != null) {
 				return operateError("权限【" + permission + "】已存在", model);
 			}
-
+			pmsPermission.setStatus(PublicStatusEnum.ACTIVE.name());
+			pmsPermission.setCreater(getPmsOperator().getLoginName());
+			pmsPermission.setCreateTime(new Date());
 			pmsPermissionService.saveData(pmsPermission);
 
 			return operateSuccess(model, dwz); // 返回operateSuccess视图,并提示“操作成功”

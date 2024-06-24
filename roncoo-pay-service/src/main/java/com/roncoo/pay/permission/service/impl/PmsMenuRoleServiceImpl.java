@@ -15,14 +15,15 @@
  */
 package com.roncoo.pay.permission.service.impl;
 
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
+import com.alibaba.druid.util.StringUtils;
 import com.roncoo.pay.permission.dao.PmsMenuRoleDao;
 import com.roncoo.pay.permission.entity.PmsMenuRole;
 import com.roncoo.pay.permission.service.PmsMenuRoleService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 /**
  * 菜单角色service接口实现
@@ -62,4 +63,20 @@ public class PmsMenuRoleServiceImpl implements PmsMenuRoleService {
 		pmsMenuRoleDao.deleteByRoleId(roleId);
 	}
 
+	@Transactional(rollbackFor = Exception.class)
+	public void saveRoleMenu(Long roleId, String roleMenuStr){
+		// 删除原来的角色与权限关联
+		pmsMenuRoleDao.deleteByRoleId(roleId);
+		if (!StringUtils.isEmpty(roleMenuStr)) {
+			// 创建新的关联
+			String[] menuIds = roleMenuStr.split(",");
+			for (int i = 0; i < menuIds.length; i++) {
+				Long menuId = Long.valueOf(menuIds[i]);
+				PmsMenuRole item = new PmsMenuRole();
+				item.setMenuId(menuId);
+				item.setRoleId(roleId);
+				pmsMenuRoleDao.insert(item);
+			}
+		}
+	}
 }

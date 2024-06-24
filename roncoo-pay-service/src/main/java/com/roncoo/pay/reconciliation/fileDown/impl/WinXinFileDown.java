@@ -15,6 +15,18 @@
  */
 package com.roncoo.pay.reconciliation.fileDown.impl;
 
+import com.alibaba.druid.util.StringUtils;
+import com.roncoo.pay.reconciliation.fileDown.service.FileDown;
+import com.roncoo.pay.reconciliation.utils.FileUtils;
+import com.roncoo.pay.reconciliation.utils.SignHelper;
+import com.roncoo.pay.reconciliation.utils.WeiXinBaseUtils;
+import com.roncoo.pay.reconciliation.utils.https.HttpClientUtil;
+import com.roncoo.pay.reconciliation.utils.https.HttpResponse;
+import com.roncoo.pay.trade.utils.WeixinConfigUtil;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.stereotype.Component;
+
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -23,18 +35,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import com.alibaba.druid.util.StringUtils;
-import com.roncoo.pay.reconciliation.fileDown.service.FileDown;
-import com.roncoo.pay.reconciliation.utils.FileUtils;
-import com.roncoo.pay.reconciliation.utils.SignHelper;
-import com.roncoo.pay.reconciliation.utils.WechatBaseUtils;
-import com.roncoo.pay.reconciliation.utils.https.HttpClientUtil;
-import com.roncoo.pay.reconciliation.utils.https.HttpResponse;
-import com.roncoo.pay.trade.utils.WeixinConfigUtil;
-
 /**
  * 微信文件下载类
  *
@@ -42,6 +42,7 @@ import com.roncoo.pay.trade.utils.WeixinConfigUtil;
  * 
  * @author：shenjialong
  */
+@Component("WEIXIN")
 public class WinXinFileDown implements FileDown {
 
 	private static final Log LOG = LogFactory.getLog(WinXinFileDown.class);
@@ -136,7 +137,7 @@ public class WinXinFileDown implements FileDown {
 		params.put("bill_date", bill_date);
 		params.put("bill_type", bill_type);
 		// 随机字符串，不长于32，调用随机数函数生成，将得到的值转换为字符串
-		params.put("nonce_str", WechatBaseUtils.createNoncestr());
+		params.put("nonce_str", WeiXinBaseUtils.createNoncestr());
 
 		// 过滤空值
 		for (Iterator<Entry<String, String>> it = params.entrySet().iterator(); it.hasNext();) {
@@ -148,7 +149,7 @@ public class WinXinFileDown implements FileDown {
 
 		String sign = SignHelper.getSign(params, appSecret);
 		params.put("sign", sign.toUpperCase());
-		return WechatBaseUtils.arrayToXml(params);
+		return WeiXinBaseUtils.arrayToXml(params);
 	}
 
 }

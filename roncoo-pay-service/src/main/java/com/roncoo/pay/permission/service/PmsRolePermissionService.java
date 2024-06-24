@@ -15,11 +15,11 @@
  */
 package com.roncoo.pay.permission.service;
 
-import java.util.Set;
-
 import com.roncoo.pay.common.core.page.PageBean;
 import com.roncoo.pay.common.core.page.PageParam;
 import com.roncoo.pay.permission.entity.PmsRolePermission;
+
+import java.util.Set;
 
 /**
  * 角色权限service接口
@@ -64,5 +64,10 @@ public interface PmsRolePermissionService {
 	 * @return
 	 */
 	PageBean listPage(PageParam pageParam, PmsRolePermission pmsRolePermission);
+	
+	/**
+	 * 保存角色和权限之间的关联关系
+	 */
+	void saveRolePermission(Long roleId, String rolePermissionStr);
 
 }

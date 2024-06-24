@@ -15,9 +15,9 @@
  */
 package com.roncoo.pay.user.entity;
 
-import java.io.Serializable;
-
 import com.roncoo.pay.common.core.entity.BaseEntity;
+
+import java.io.Serializable;
 
 /**
  * 用户第三方支付信息实体类
@@ -58,8 +58,46 @@ public class RpUserPayInfo extends BaseEntity implements Serializable {
     private String payWayCode;
 
     private String payWayName;
+    
+    /**
+     * 支付宝线下产品appid
+     */
+    private String offlineAppId;
+    /**
+     * 支付宝私钥
+     */
+    private String rsaPrivateKey;
+    
+    /**
+     * 支付宝公钥
+     */
+    private String rsaPublicKey;
 
-    public String getPayWayCode() {
+    public String getOfflineAppId() {
+		return offlineAppId;
+	}
+
+	public void setOfflineAppId(String offlineAppId) {
+		this.offlineAppId = offlineAppId;
+	}
+
+	public String getRsaPrivateKey() {
+		return rsaPrivateKey;
+	}
+
+	public void setRsaPrivateKey(String rsaPrivateKey) {
+		this.rsaPrivateKey = rsaPrivateKey;
+	}
+
+	public String getRsaPublicKey() {
+		return rsaPublicKey;
+	}
+
+	public void setRsaPublicKey(String rsaPublicKey) {
+		this.rsaPublicKey = rsaPublicKey;
+	}
+
+	public String getPayWayCode() {
 		return payWayCode;
 	}
 

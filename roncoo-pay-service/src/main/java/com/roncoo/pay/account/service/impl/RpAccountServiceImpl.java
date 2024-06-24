@@ -20,7 +20,6 @@ import com.roncoo.pay.account.entity.RpAccount;
 import com.roncoo.pay.account.service.RpAccountService;
 import com.roncoo.pay.common.core.page.PageBean;
 import com.roncoo.pay.common.core.page.PageParam;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -58,5 +57,12 @@ public class RpAccountServiceImpl implements RpAccountService{
 		Map<String, Object> paramMap = new HashMap<String, Object>();
 		paramMap.put("accountNo", rpAccount.getAccountNo());
 		return rpAccountDao.listPage(pageParam, paramMap);
+	}
+	
+	@Override
+	public RpAccount getDataByUserNo(String userNo){
+		Map<String, Object> paramMap = new HashMap<String, Object>();
+		paramMap.put("userNo", userNo);
+		return rpAccountDao.getBy(paramMap);
 	}
 }
